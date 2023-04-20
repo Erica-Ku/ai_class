@@ -1,8 +1,10 @@
-import src.numeric as numeric
+from src import numeric
+
 
 filename = "./data/Convex.txt"
-exp = "(x1 - 2) ** 2 +5 * (x2 - 5) ** 2 + 8 * (x3 + 8) ** 2 + 3 * (x4 + 1) ** 2 + 6 * (x5 - 7) ** 2"
+exp = "(x1 - 2) ** 2 + 5 * (x2 - 5) ** 2 + 8 * (x3 + 8) ** 2 + 3 * (x4 + 1) ** 2 + 6 * (x5 - 7) ** 2"
 result = numeric.create_problem(filename)
+
 
 def test_create_problem():
     test_case1, test_case2 = result
