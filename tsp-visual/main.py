@@ -1,42 +1,72 @@
+import os
 import pygame
 import gfx
 import threading
+
 from util import *
+from algo import LocalSearch
 from algo_info import ALGO_INFO, DIVIDERS
 
-# 0. 알고리즘 만들기?
-# 1. 좌표
-# 2. Loop 만들기
+
 def loop():
-    # 알고리즘 정보 가져오기
     for i in range(len(ALGO_INFO)):
-        print(ALGO_INFO[i])
+        if ALGO_INFO[i]["depends"] == -1:
+            threads[i].start()
 
     while True:
         gfx.check_events()
-        gfx.draw_text_center(surface, "Hello", font, 50, 50)
-        gfx.draw_dividers(surface, DIVIDERS)
+
         for i in range(len(ALGO_INFO)):
             if i < len(sims):
-                pass
+                gfx.draw_text_top_left(
+                    surface,
+                    ALGO_INFO[i]["name"],
+                    GREEN,
+                    font,
+                    *ALGO_INFO[i]["name_coords"]
+                )
+                # print(ALGO_INFO[i]["name"], sims[i].best_order)
+                gfx.draw_path(surface, list_of_cities_list[i], sims[i].best_order)
+                gfx.draw_text_top_left(
+                    surface,
+                    "Path Length : " + str(sims[i].best_distance),
+                    WHITE,
+                    font,
+                    *ALGO_INFO[i]["length_coords"]
+                )
+            elif len(sims[ALGO_INFO[i]["depends"]].best_order) != 0:
+                for j in range(len(ALGO_INFO)):
+                    if ALGO_INFO[j]["depends"] != -1:
+                        if ALGO_INFO[j]["sim"] == LocalSearch.LocalSearchSolver:
+                            sims.append(
+                                ALGO_INFO[j]["sim"](
+                                    list_of_cities_list[j],
+                                    sims[ALGO_INFO[j]["depends"]].best_order[:],
+                                    int(ALGO_INFO[j]["name"][-1]),
+                                )
+                            )
+                        else:
+                            sims.append(
+                                ALGO_INFO[j]["sim"](
+                                    list_of_cities_list[j],
+                                    sims[ALGO_INFO[j]["depends"]].best_order[:],
+                                )
+                            )
+                        threads.append(threading.Thread(target=sims[j].find))
+                        threads[j].daemon = True
+                        threads[j].start()
+        gfx.draw_dividers(surface, DIVIDERS)
         pygame.display.update()
         surface.fill(BLACK)
-    
-    # 무한반복
-    # 알고리즘 배치
-    # 그리기 => 점, 선, 텍스트
-    # draw_point(x, y) => 값 반환X
-    # draw_line(x, y) => 값 반환X
-    # draw_text(x, y) => 값 반환X
 
-    # 애니메이션 만들기
-    # p를 직접 랜덤으로 만들기 => 답이 있는 랜덤
-    # 포팅
 
+os.environ["SDL_VIDEO_WINDOW_POS"] = "%d,%d" % (WINDOW_X, WINDOW_Y)
 pygame.init()
 surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT), 0, 32)
-font = pygame.font.SysFont("Consolas", FONT_HEIGHT)
-cities = make_cities(20)
+pygame.display.set_caption("TSP-Visualizer")
+font = pygame.font.SysFont("Malgun Gothic", FONT_HEIGHT)
+
+cities = make_cities(30)
 list_of_cities_list = []
 sims = []
 threads = []
@@ -47,10 +77,9 @@ for i in range(len(ALGO_INFO)):
 for i in range(len(ALGO_INFO)):
     if ALGO_INFO[i]["depends"] == -1:
         sims.append(ALGO_INFO[i]["sim"](list_of_cities_list[i]))
-        threads.append(threading.Thread(target = sims[i].find))
+        threads.append(threading.Thread(target=sims[i].find))
         threads[i].daemon = True
 
 
-if __name__=="__main__":
-    pygame.display.set_caption("TSP - Visualizer")
-    # loop()
+if __name__ == "__main__":
+    loop()

@@ -1,6 +1,8 @@
 import random
+import math
 
 
+ALPHA = 0.01
 DELTA = 0.01
 eval_count = 0
 
@@ -79,7 +81,7 @@ def display_result(solution, minimum):
 
 if __name__ == "__main__":
     p = create_problem("./data/Convex.txt")
-    solution = random_init(p)
-    minimum = evaluate(solution, p)
+    current = random_init(p)
+    minimum = evaluate(current, p)
     describe_problem(p)
-    display_result(solution, minimum)
+    display_result(current, minimum)

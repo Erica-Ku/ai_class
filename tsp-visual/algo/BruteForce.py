@@ -1,12 +1,13 @@
 import itertools
 from util import *
 
+
 class BruteForceSolver:
     def __init__(self, cities):
         self.cities = cities
         self.total = len(cities)
         self.best_order = []
-        self.best_distance = float('inf')
+        self.best_distance = float("inf")
 
     def find(self):
         start = [i for i in range(self.total)]
